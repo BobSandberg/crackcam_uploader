@@ -65,7 +65,7 @@ class MotionUploader:
     def _create_drive(self):
         """Create a Drive service."""
         auth_required = True
-        #Have we got some credentials already?
+        # Have we got some credentials already?
         storage = Storage(self.oauth_folder+'uploader_credentials.txt')    
         credentials = storage.get()
         try:
@@ -89,8 +89,8 @@ class MotionUploader:
         
             auth_uri = flow.step1_get_authorize_url()
             
-            print 'Go to this link in your browser:'
-            print auth_uri
+            print('Go to this link in your browser:')
+            print(auth_uri)
         
             auth_code = raw_input('Enter the auth code: ')
             credentials = flow.step2_exchange(auth_code)
@@ -141,13 +141,13 @@ class MotionUploader:
         """Upload a snapshot to the specified folder. Remove duplicates."""
         folder_id = self._get_folder_id(self.snapshot_folder)
         file_name = os.path.basename(snapshot_file_path)
-        #Delete the old snapshot
+        # Delete the old snapshot
         files = self.drive_service.files().list(q="title='%s' and '%s' in parents and trashed=false" % (file_name, folder_id)).execute()
         if len(files['items']) >= 1:
             for f in files['items']:
                 file_id = f['id']
                 self.drive_service.files().delete(fileId=file_id).execute()
-        #Now upload the new one
+        # Now upload the new one
         media = MediaFileUpload(snapshot_file_path, mimetype='image/jpeg')
         self.drive_service.files().insert(media_body=media, body={'title':file_name, 'parents':[{u'id': folder_id}]}).execute()          
                       
@@ -156,12 +156,12 @@ class MotionUploader:
         folder_id = self._get_folder_id(self.snapshot_folder)
         
         public_url = 'https://googledrive.com/host/%s/' % folder_id
-        print public_url + os.path.basename(snapshot_file_path)          
+        print(public_url + os.path.basename(snapshot_file_path))
                       
 if __name__ == '__main__':         
     try:
         logging.basicConfig(level=0)
-        #logging.basicConfig(level=logging.TRACE)
+        # logging.basicConfig(level=logging.TRACE)
         if len(sys.argv) < 3:
             exit('Motion Uploader - uploads videos and snapshots to Google Drive\n'+
                  '   by Jeremy Blythe (http://jeremyblythe.blogspot.com)\n\n'+
@@ -176,23 +176,24 @@ if __name__ == '__main__':
         else:
             option = 'video'
                 
-	print "cfg_path = %s" % cfg_path
-	print "vid_path = %s" % vid_path
-	print "option = %s" % option
+        print("cfg_path = %s" % cfg_path)
+        print("vid_path = %s" % vid_path)
+        print("option = %s" % option)
 
         if not os.path.exists(cfg_path):
             exit('Config file does not exist [%s]' % cfg_path)    
         if not os.path.exists(vid_path):
             exit('Source file does not exist [%s]' % vid_path)
         if option.lower() == 'snap':
-	    print "Calling MotionUploader to upload_snapshot"
+            print("Calling MotionUploader to upload_snapshot")
             MotionUploader(cfg_path).upload_snapshot(vid_path)
         elif option.lower() == 'snapurl':
-	    print "Calling MotionUploader to get_snapshot_url"
-	    exit(1)
-            MotionUploader(cfg_path).get_snapshot_url(vid_path)
+            print("Calling MotionUploader to get_snapshot_url, but not really!!!")
+            exit(1)
+            #MotionUploader(cfg_path).get_snapshot_url(vid_path)
         else:    
-	    print "uh-uh - no videos - not doing this one!"
+            print("Calling MotionUploader to upload_video, but not really!!!")
+            exit(1)
             # MotionUploader(cfg_path).upload_video(vid_path)        
     except Exception as e:
         exit('Error: [%s]' % e)
