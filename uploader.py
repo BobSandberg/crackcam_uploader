@@ -135,6 +135,7 @@ class MotionUploader:
             self._send_email(msg)    
  
         if self.delete_after_upload:
+            print("Removing file: {0}".format(video_file_path))
             os.remove(video_file_path)    
     
     def upload_snapshot(self, snapshot_file_path):
@@ -149,7 +150,13 @@ class MotionUploader:
                 self.drive_service.files().delete(fileId=file_id).execute()
         # Now upload the new one
         media = MediaFileUpload(snapshot_file_path, mimetype='image/jpeg')
-        self.drive_service.files().insert(media_body=media, body={'title':file_name, 'parents':[{u'id': folder_id}]}).execute()          
+        self.drive_service.files().insert(media_body=media, body={'title':file_name, 'parents':[{u'id': folder_id}]}).execute()
+
+        if self.delete_after_upload:
+            print("Removing file: {0}".format(snapshot_file_path))
+            os.remove(snapshot_file_path)    
+    
+
                       
     def get_snapshot_url(self, snapshot_file_path):
         """Print out the public url for this snapshot."""
@@ -170,30 +177,30 @@ if __name__ == '__main__':
                  '            snapurl : Print the public url for the folder+file\n'+
                  '            None : Defaults to uploading video files')
         cfg_path = sys.argv[1]
-        vid_path = sys.argv[2]
+        file_path = sys.argv[2]
         if len(sys.argv) > 3:
             option = sys.argv[3]
         else:
             option = 'video'
                 
         print("cfg_path = %s" % cfg_path)
-        print("vid_path = %s" % vid_path)
+        print("file_path = %s" % file_path)
         print("option = %s" % option)
 
         if not os.path.exists(cfg_path):
             exit('Config file does not exist [%s]' % cfg_path)    
-        if not os.path.exists(vid_path):
-            exit('Source file does not exist [%s]' % vid_path)
+        if not os.path.exists(file_path):
+            exit('Source file does not exist [%s]' % file_path)
         if option.lower() == 'snap':
             print("Calling MotionUploader to upload_snapshot")
-            MotionUploader(cfg_path).upload_snapshot(vid_path)
+            MotionUploader(cfg_path).upload_snapshot(file_path)
         elif option.lower() == 'snapurl':
             print("Calling MotionUploader to get_snapshot_url, but not really!!!")
             exit(1)
-            #MotionUploader(cfg_path).get_snapshot_url(vid_path)
+            #MotionUploader(cfg_path).get_snapshot_url(file_path)
         else:    
             print("Calling MotionUploader to upload_video, but not really!!!")
             exit(1)
-            # MotionUploader(cfg_path).upload_video(vid_path)        
+            # MotionUploader(cfg_path).upload_video(file_path)        
     except Exception as e:
         exit('Error: [%s]' % e)
