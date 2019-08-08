@@ -1,0 +1,1 @@
+0,15,30,45 * * * * /home/pi/crackcam_uploader/capture_and_upload.sh >> /home/pi/crackcam_uploader/capture_and_upload.log
